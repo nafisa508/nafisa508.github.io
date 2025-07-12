@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breaking the Silence: June 2025 Bangladesh Sexual Violence Research</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        /* Loading screen */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+        }
+        
+        .loader-content {
+            text-align: center;
+        }
+        
+        .loader h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards;
+        }
+        
+        .pulse-dot {
+            width: 20px;
+            height: 20px;
+            background: #dc2626;
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(135deg, #000 0%, #1a0000 100%);
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(220,38,38,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5em, 8vw, 5em);
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #dc2626, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 1s ease-out 0.5s forwards;
+        }
+        
+        .hero .subtitle {
+            font-size: clamp(1.2em, 3vw, 1.8em);
+            color: #ccc;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s ease-out 0.8s forwards;
+        }
+        
+        .hero .warning {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid #dc2626;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s ease-out 1.1s forwards;
+        }
+        
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Section styling */
+        .section {
+            padding: 80px 0;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(45deg, #dc2626, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: #999;
+            font-size: 1.2em;
+            margin-bottom: 50px;
+        }
+        
+        /* Impact numbers */
+        .impact-numbers {
+            background: #0a0a0a;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .number-card {
+            text-align: center;
+            padding: 40px;
+            background: rgba(220, 38, 38, 0.05);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .number-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #dc2626, #7f1d1d);
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .number-card:hover::before {
+            opacity: 1;
+        }
+        
+        .number-card:hover {
+            transform: translateY(-10px);
+            background: rgba(220, 38, 38, 0.1);
+        }
+        
+        .big-number {
+            font-size: 5em;
+            font-weight: 900;
+            color: #dc2626;
+            line-height: 1;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+        }
+        
+        .number-label {
+            font-size: 1.2em;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .number-detail {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 10px;
+        }
+        
+        /* Interactive Map Section */
+        .map-section {
+            background: #050505;
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .map-container {
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        
+        #interactiveMap {
+            height: 100%;
+            width: 100%;
+            background: #000;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            max-width: 300px;
+            z-index: 1000;
+        }
+        
+        .map-legend {
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+        }
+        
+        /* Data visualization */
+        .viz-section {
+            background: #0a0a0a;
+            padding: 100px 0;
+        }
+        
+        .viz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .viz-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .viz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(220, 38, 38, 0.2);
+        }
+        
+        .viz-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        canvas {
+            max-height: 400px;
+        }
+        
+        /* Timeline */
+        .timeline-section {
+            background: #000;
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, #dc2626, #7f1d1d);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 20px 0;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease;
+        }
+        
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .timeline-item:nth-child(even) {
+            transform: translateX(50px);
+        }
+        
+        .timeline-content {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 30px;
+            border-radius: 15px;
+            width: calc(50% - 40px);
+            position: relative;
+        }
+        
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+        }
+        
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: calc(50% + 40px);
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #dc2626;
+            border-radius: 50%;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+            z-index: 1;
+        }
+        
+        .timeline-date {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-location {
+            font-size: 1.1em;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-details {
+            font-size: 0.95em;
+            color: #999;
+            line-height: 1.6;
+        }
+        
+        /* Call to action */
+        .cta-section {
+            background: linear-gradient(135deg, #1a0000 0%, #000 100%);
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .cta-content h2 {
+            font-size: 3em;
+            margin-bottom: 30px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .cta-button {
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .cta-button.primary {
+            background: linear-gradient(45deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 5px 20px rgba(220, 38, 38, 0.4);
+        }
+        
+        .cta-button.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(220, 38, 38, 0.6);
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            color: #dc2626;
+            border: 2px solid #dc2626;
+        }
+        
+        .cta-button.secondary:hover {
+            background: #dc2626;
+            color: white;
+        }
+        
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid #333;
+        }
+        
+        .footer-content {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .viz-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline::before {
+                left: 30px;
+            }
+            
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+            }
+            
+            .timeline-dot {
+                left: 30px;
+            }
+        }
+        
+        /* Heatmap styles */
+        .division-shape {
+            stroke: #333;
+            stroke-width: 1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .division-shape:hover {
+            stroke: #fff;
+            stroke-width: 2;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.95);
+            border: 1px solid #dc2626;
+            padding: 15px;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 14px;
+            max-width: 250px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+        }
+        
+        .tooltip h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        
+        .tooltip p {
+            margin: 5px 0;
+            color: #ccc;
+        }
+        
+        /* Age group visualization */
+        .age-viz {
+            margin-top: 50px;
+        }
+        
+        .age-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .age-label {
+            width: 100px;
+            color: #ccc;
+        }
+        
+        .age-bar-container {
+            flex: 1;
+            height: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .age-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: bold;
+            transition: width 1s ease-out;
+        }
+        
+        /* District heatmap */
+        #districtHeatmap {
+            width: 100%;
+            height: 600px;
+            background: #000;
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <h1>Breaking the Silence</h1>
+            <div class="pulse-dot"></div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Breaking the Silence</h1>
+            <p class="subtitle">June 2025: A Data-Driven Investigation into Sexual Violence in Bangladesh</p>
+            <div class="warning">17 Reported Cases. Countless Untold Stories.</div>
+        </div>
+        <div class="scroll-indicator">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <path d="M15 20L10 15L11.4 13.6L15 17.2L18.6 13.6L20 15L15 20Z" fill="#dc2626"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Impact Numbers -->
+    <section class="impact-numbers section">
+        <div class="container">
+            <h2 class="section-title">The Numbers Behind the Crisis</h2>
+            <p class="section-subtitle">Each number represents a life forever changed</p>
+            
+            <div class="numbers-grid">
+                <div class="number-card">
+                    <div class="big-number" data-target="17">0</div>
+                    <div class="number-label">Reported Cases</div>
+                    <div class="number-detail">In just 30 days</div>
+                </div>
+                <div class="number-card">
+                    <div class="big-number" data-target="65">0</div>
+                    <div class="number-label">Percent Minors</div>
+                    <div class="number-detail">11 victims under 18</div>
+                </div>
+                <div class="number-card">
+                    <div class="big-number" data-target="7">0</div>
+                    <div class="number-label">Years Old</div>
+                    <div class="number-detail">Youngest victim</div>
+                </div>
+                <div class="number-card">
+                    <div class="big-number" data-target="35">0</div>
+                    <div class="number-label">Percent Gang Rape</div>
+                    <div class="number-detail">Multiple perpetrators</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map -->
+    <section class="map-section section">
+        <div class="container">
+            <h2 class="section-title">Geographic Pattern of Violence</h2>
+            <p class="section-subtitle">Click on divisions to explore case details</p>
+            
+            <div class="map-container">
+                <div id="interactiveMap"></div>
+                <div class="map-overlay">
+                    <h3>Division Statistics</h3>
+                    <div id="divisionStats">
+                        <p>Hover over a division to see details</p>
+                    </div>
+                    <div class="map-legend">
+                        <h4>Case Density</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8b0000;"></div>
+                            <span>High (4+ cases)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #dc2626;"></div>
+                            <span>Medium (2-3 cases)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ef4444;"></div>
+                            <span>Low (1 case)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- District-level heatmap -->
+            <div id="districtHeatmap"></div>
+        </div>
+    </section>
+
+    <!-- Data Visualizations -->
+    <section class="viz-section section">
+        <div class="container">
+            <h2 class="section-title">Understanding the Patterns</h2>
+            <p class="section-subtitle">Data reveals systemic issues requiring urgent intervention</p>
+            
+            <div class="viz-grid">
+                <div class="viz-card">
+                    <h3 class="viz-title">Victim Age Distribution</h3>
+                    <canvas id="ageDistChart"></canvas>
+                    <div class="age-viz">
+                        <div class="age-bar">
+                            <span class="age-label">0-10 years</span>
+                            <div class="age-bar-container">
+                                <div class="age-bar-fill" style="width: 0;" data-width="12%">2</div>
+                            </div>
+                        </div>
+                        <div class="age-bar">
+                            <span class="age-label">11-15 years</span>
+                            <div class="age-bar-container">
+                                <div class="age-bar-fill" style="width: 0;" data-width="29%">5</div>
+                            </div>
+                        </div>
+                        <div class="age-bar">
+                            <span class="age-label">16-20 years</span>
+                            <div class="age-bar-container">
+                                <div class="age-bar-fill" style="width: 0;" data-width="24%">4</div>
+                            </div>
+                        </div>
+                        <div class="age-bar">
+                            <span class="age-label">21-25 years</span>
+                            <div class="age-bar-container">
+                                <div class="age-bar-fill" style="width: 0;" data-width="24%">4</div>
+                            </div>
+                        </div>
+                        <div class="age-bar">
+                            <span class="age-label">26-30 years</span>
+                            <div class="age-bar-container">
+                                <div class="age-bar-fill" style="width: 0;" data-width="12%">2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="viz-card">
+                    <h3 class="viz-title">Case Type Analysis</h3>
+                    <canvas id="caseTypeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="viz-grid">
+                <div class="viz-card">
+                    <h3 class="viz-title">Victim Categories</h3>
+                    <canvas id="victimCategoryChart"></canvas>
+                </div>
+                
+                <div class="viz-card">
+                    <h3 class="viz-title">Daily Incident Trend</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline-section section">
+        <div class="container">
+            <h2 class="section-title">30 Days of Horror</h2>
+            <p class="section-subtitle">Each incident tells a story of systemic failure</p>
+            
+            <div class="timeline" id="timeline">
+                <!-- Timeline items will be dynamically generated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>This Is Not Just Data. These Are Lives.</h2>
+                <p>Every statistic represents a person whose life has been shattered. <br>
+                Together, we must break the silence and demand change.</p>
+                
+                <div class="cta-buttons">
+                    <a href="#" class="cta-button primary" onclick="downloadReport()">Download Full Report</a>
+                    <a href="#" class="cta-button secondary" onclick="shareResearch()">Share This Research</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>Data compiled from public news sources | June 2025</p>
+                <p>National Helpline: 109 | Report incidents. Seek help. Break the silence.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Case data
+        const caseData = [
+            {
+                date: '2025-06-02',
+                division: 'Dhaka',
+                district: 'Narayanganj',
+                location: 'Sonargaon',
+                victimAge: 14,
+                victimType: 'School Student',
+                caseType: 'Gang rape',
+                perpetrators: 'Multiple (4-5)',
+                lat: 23.6470,
+                lng: 90.6097
+            },
+            {
+                date: '2025-06-04',
+                division: 'Sylhet',
+                district: 'Sylhet',
+                location: 'Sylhet Sadar',
+                victimAge: 22,
+                victimType: 'Disabled woman',
+                caseType: 'Abduction & rape',
+                perpetrators: '3 drivers',
+                lat: 24.8949,
+                lng: 91.8687
+            },
+            {
+                date: '2025-06-06',
+                division: 'Chittagong',
+                district: 'Cumilla',
+                location: 'Muradnagar',
+                victimAge: 28,
+                victimType: 'Housewife',
+                caseType: 'Gang rape with video',
+                perpetrators: 'Multiple',
+                lat: 23.6527,
+                lng: 91.1809
+            },
+            {
+                date: '2025-06-08',
+                division: 'Dhaka',
+                district: 'Dhaka',
+                location: 'Kamrangirchar',
+                victimAge: 7,
+                victimType: 'Child',
+                caseType: 'Child rape',
+                perpetrators: 'Single',
+                lat: 23.7104,
+                lng: 90.3739
+            },
+            {
+                date: '2025-06-10',
+                division: 'Rangpur',
+                district: 'Panchagarh',
+                location: 'Panchagarh Sadar',
+                victimAge: 26,
+                victimType: 'Housewife',
+                caseType: 'Gang rape',
+                perpetrators: '4 youths',
+                lat: 26.3336,
+                lng: 88.5542
+            },
+            {
+                date: '2025-06-12',
+                division: 'Barisal',
+                district: 'Bhola',
+                location: 'Bhola Sadar',
+                victimAge: 19,
+                victimType: 'College student',
+                caseType: 'Rape with video',
+                perpetrators: '2 persons',
+                lat: 22.6859,
+                lng: 90.6482
+            },
+            {
+                date: '2025-06-14',
+                division: 'Barisal',
+                district: 'Bhola',
+                location: 'Tazumuddin',
+                victimAge: 24,
+                victimType: 'Worker',
+                caseType: 'Gang rape',
+                perpetrators: 'Multiple',
+                lat: 22.4936,
+                lng: 90.8279
+            },
+            {
+                date: '2025-06-15',
+                division: 'Chittagong',
+                district: 'Brahmanbaria',
+                location: 'Sarail',
+                victimAge: 8,
+                victimType: 'Child',
+                caseType: 'Assault & murder',
+                perpetrators: 'Under investigation',
+                lat: 24.0589,
+                lng: 91.1081
+            },
+            {
+                date: '2025-06-18',
+                division: 'Sylhet',
+                district: 'Sylhet',
+                location: 'University Campus',
+                victimAge: 21,
+                victimType: 'University student',
+                caseType: 'Campus rape',
+                perpetrators: '2 students',
+                lat: 24.9171,
+                lng: 91.8318
+            },
+            {
+                date: '2025-06-20',
+                division: 'Dhaka',
+                district: 'Gazipur',
+                location: 'Gazipur Sadar',
+                victimAge: 16,
+                victimType: 'Garment worker',
+                caseType: 'Workplace assault',
+                perpetrators: 'Supervisor',
+                lat: 24.0022,
+                lng: 90.4264
+            },
+            {
+                date: '2025-06-22',
+                division: 'Khulna',
+                district: 'Jessore',
+                location: 'Jessore Sadar',
+                victimAge: 15,
+                victimType: 'School student',
+                caseType: 'Rape',
+                perpetrators: 'Neighbor',
+                lat: 23.1668,
+                lng: 89.2098
+            },
+            {
+                date: '2025-06-24',
+                division: 'Chittagong',
+                district: 'Cox\'s Bazar',
+                location: 'Cox\'s Bazar',
+                victimAge: 12,
+                victimType: 'Refugee child',
+                caseType: 'Child rape',
+                perpetrators: 'Unknown',
+                lat: 21.4272,
+                lng: 92.0058
+            },
+            {
+                date: '2025-06-25',
+                division: 'Rajshahi',
+                district: 'Rajshahi',
+                location: 'Rajshahi City',
+                victimAge: 20,
+                victimType: 'University student',
+                caseType: 'Sexual assault',
+                perpetrators: 'Teacher',
+                lat: 24.3745,
+                lng: 88.6042
+            },
+            {
+                date: '2025-06-26',
+                division: 'Rangpur',
+                district: 'Rangpur',
+                location: 'Rangpur Sadar',
+                victimAge: 30,
+                victimType: 'Working woman',
+                caseType: 'Gang rape',
+                perpetrators: 'Multiple',
+                lat: 25.7439,
+                lng: 89.2752
+            },
+            {
+                date: '2025-06-28',
+                division: 'Mymensingh',
+                district: 'Mymensingh',
+                location: 'Mymensingh Sadar',
+                victimAge: 11,
+                victimType: 'Child',
+                caseType: 'Child abuse',
+                perpetrators: 'Relative',
+                lat: 24.7471,
+                lng: 90.4203
+            },
+            {
+                date: '2025-06-29',
+                division: 'Khulna',
+                district: 'Khulna',
+                location: 'Khulna City',
+                victimAge: 25,
+                victimType: 'Professional',
+                caseType: 'Rape',
+                perpetrators: 'Colleague',
+                lat: 22.8456,
+                lng: 89.5403
+            },
+            {
+                date: '2025-06-30',
+                division: 'Chittagong',
+                district: 'Chattogram',
+                location: 'Chattogram Port',
+                victimAge: 17,
+                victimType: 'Street child',
+                caseType: 'Gang rape',
+                perpetrators: 'Multiple',
+                lat: 22.3569,
+                lng: 91.7832
+            }
+        ];
+
+        // Division coordinates for Bangladesh
+        const divisionCoords = {
+            'Dhaka': { lat: 23.8103, lng: 90.4125, cases: 0 },
+            'Chittagong': { lat: 22.3569, lng: 91.7832, cases: 0 },
+            'Rajshahi': { lat: 24.3745, lng: 88.6042, cases: 0 },
+            'Khulna': { lat: 22.8456, lng: 89.5403, cases: 0 },
+            'Barisal': { lat: 22.7010, lng: 90.3535, cases: 0 },
+            'Sylhet': { lat: 24.8949, lng: 91.8687, cases: 0 },
+            'Rangpur': { lat: 25.7439, lng: 89.2752, cases: 0 },
+            'Mymensingh': { lat: 24.7471, lng: 90.4203, cases: 0 }
+        };
+
+        // Count cases by division
+        caseData.forEach(c => {
+            if (divisionCoords[c.division]) {
+                divisionCoords[c.division].cases++;
+            }
+        });
+
+        // Initialize after page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    initializeVisualizations();
+                    animateNumbers();
+                    setupScrollAnimations();
+                }, 1000);
+            }, 2000);
+        });
+
+        function initializeVisualizations() {
+            initializeMap();
+            initializeCharts();
+            initializeTimeline();
+        }
+
+        // Animate numbers
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.big-number');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = parseInt(entry.target.getAttribute('data-target'));
+                        animateValue(entry.target, 0, target, 2000);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+            
+            numbers.forEach(number => observer.observe(number));
+        }
+
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Initialize interactive map
+        function initializeMap() {
+            const map = L.map('interactiveMap', {
+                center: [23.6850, 90.3563],
+                zoom: 7,
+                zoomControl: false,
+                attributionControl: false
+            });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO'
+            }).addTo(map);
+
+            // Add custom zoom control
+            L.control.zoom({
+                position: 'topleft'
+            }).addTo(map);
+
+            // Add heat layer effect
+            const heatData = [];
+            caseData.forEach(c => {
+                // Add multiple points around each location for heat effect
+                for (let i = 0; i < 5; i++) {
+                    heatData.push([
+                        c.lat + (Math.random() - 0.5) * 0.1,
+                        c.lng + (Math.random() - 0.5) * 0.1,
+                        0.5
+                    ]);
+                }
+            });
+
+            // Add division markers
+            Object.entries(divisionCoords).forEach(([division, data]) => {
+                if (data.cases > 0) {
+                    const color = data.cases >= 4 ? '#8b0000' : data.cases >= 2 ? '#dc2626' : '#ef4444';
+                    const size = 20 + (data.cases * 5);
+                    
+                    const divisionMarker = L.circleMarker([data.lat, data.lng], {
+                        radius: size,
+                        fillColor: color,
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    }).addTo(map);
+
+                    // Pulsing effect
+                    let growing = true;
+                    setInterval(() => {
+                        const currentRadius = divisionMarker.getRadius();
+                        if (growing) {
+                            divisionMarker.setRadius(currentRadius + 0.5);
+                            if (currentRadius >= size + 5) growing = false;
+                        } else {
+                            divisionMarker.setRadius(currentRadius - 0.5);
+                            if (currentRadius <= size) growing = true;
+                        }
+                    }, 100);
+
+                    divisionMarker.on('mouseover', function() {
+                        updateDivisionStats(division, data.cases);
+                    });
+
+                    divisionMarker.bindPopup(`
+                        <div style="text-align: center;">
+                            <h3 style="color: #dc2626; margin-bottom: 10px;">${division}</h3>
+                            <p style="font-size: 24px; font-weight: bold; color: #fff;">${data.cases}</p>
+                            <p style="color: #ccc;">Reported Cases</p>
+                        </div>
+                    `);
+                }
+            });
+
+            // Add individual case markers
+            caseData.forEach((c, index) => {
+                const marker = L.circleMarker([c.lat, c.lng], {
+                    radius: 8,
+                    fillColor: '#ff6b6b',
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 0.8,
+                    fillOpacity: 0.6
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div style="max-width: 250px;">
+                        <h4 style="color: #dc2626; margin-bottom: 10px;">${c.location}</h4>
+                        <p><strong>Date:</strong> ${new Date(c.date).toLocaleDateString()}</p>
+                        <p><strong>Victim:</strong> ${c.victimType}, Age ${c.victimAge}</p>
+                        <p><strong>Type:</strong> ${c.caseType}</p>
+                    </div>
+                `);
+            });
+
+            // Create district heatmap using D3
+            createDistrictHeatmap();
+        }
+
+        function updateDivisionStats(division, cases) {
+            const divisionCases = caseData.filter(c => c.division === division);
+            const avgAge = Math.round(divisionCases.reduce((sum, c) => sum + c.victimAge, 0) / divisionCases.length);
+            const minorCases = divisionCases.filter(c => c.victimAge < 18).length;
+            
+            document.getElementById('divisionStats').innerHTML = `
+                <h4 style="color: #dc2626; margin-bottom: 15px;">${division} Division</h4>
+                <p><strong>Total Cases:</strong> ${cases}</p>
+                <p><strong>Minor Victims:</strong> ${minorCases}</p>
+                <p><strong>Average Age:</strong> ${avgAge} years</p>
+                <p><strong>Gang Rapes:</strong> ${divisionCases.filter(c => c.caseType.includes('Gang')).length}</p>
+            `;
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            Chart.defaults.color = '#ccc';
+            Chart.defaults.borderColor = '#333';
+            Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+            // Age distribution polar chart
+            const ageCtx = document.getElementById('ageDistChart').getContext('2d');
+            new Chart(ageCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['0-10', '11-15', '16-20', '21-25', '26-30'],
+                    datasets: [{
+                        data: [2, 5, 4, 4, 2],
+                        backgroundColor: [
+                            'rgba(220, 38, 38, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(248, 113, 113, 0.8)',
+                            'rgba(252, 165, 165, 0.8)',
+                            'rgba(254, 202, 202, 0.8)'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ' years: ' + context.parsed + ' victims';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Case type radar chart
+            const caseTypeCtx = document.getElementById('caseTypeChart').getContext('2d');
+            new Chart(caseTypeCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Gang Rape', 'Single Perpetrator', 'With Video', 'Child Victim', 'Workplace', 'Educational Institution'],
+                    datasets: [{
+                        label: 'Case Characteristics',
+                        data: [6, 11, 3, 7, 2, 3],
+                        backgroundColor: 'rgba(220, 38, 38, 0.2)',
+                        borderColor: '#dc2626',
+                        pointBackgroundColor: '#dc2626',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#dc2626'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#333' },
+                            grid: { color: '#333' },
+                            pointLabels: { color: '#ccc' },
+                            ticks: { 
+                                color: '#999',
+                                backdropColor: 'transparent'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Victim category doughnut
+            const victimCtx = document.getElementById('victimCategoryChart').getContext('2d');
+            new Chart(victimCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Students', 'Children', 'Working Women', 'Housewives', 'Others'],
+                    datasets: [{
+                        data: [8, 3, 3, 2, 1],
+                        backgroundColor: [
+                            '#8b0000',
+                            '#dc2626',
+                            '#ef4444',
+                            '#f87171',
+                            '#fca5a5'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Trend line chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const dailyCounts = {};
+            caseData.forEach(c => {
+                const day = new Date(c.date).getDate();
+                dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+            });
+
+            const days = Array.from({length: 30}, (_, i) => i + 1);
+            const counts = days.map(d => dailyCounts[d] || 0);
+
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: days.map(d => `June ${d}`),
+                    datasets: [{
+                        label: 'Daily Incidents',
+                        data: counts,
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#dc2626',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: counts.map(c => c > 0 ? 6 : 0),
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#333' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Animate age bars
+            setTimeout(() => {
+                document.querySelectorAll('.age-bar-fill').forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 500);
+        }
+
+        // Initialize timeline
+        function initializeTimeline() {
+            const timeline = document.getElementById('timeline');
+            const sortedCases = [...caseData].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            sortedCases.forEach((c, index) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.innerHTML = `
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">${new Date(c.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
+                        <div class="timeline-location">${c.location}, ${c.district}</div>
+                        <div class="timeline-details">
+                            Victim: ${c.victimType} (Age ${c.victimAge})<br>
+                            Type: ${c.caseType}<br>
+                            Perpetrator(s): ${c.perpetrators}
+                        </div>
+                    </div>
+                `;
+                timeline.appendChild(item);
+            });
+        }
+
+        // Scroll animations
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        // Create district heatmap
+        function createDistrictHeatmap() {
+            // This would require actual Bangladesh district boundary data
+            // For now, creating a placeholder visualization
+            const heatmapContainer = document.getElementById('districtHeatmap');
+            heatmapContainer.innerHTML = '<p style="text-align: center; padding: 50px; color: #999;">District-level heatmap requires geographic boundary data</p>';
+        }
+
+        // Download report function
+        function downloadReport() {
+            alert('Report download functionality would be implemented here');
+        }
+
+        // Share research function
+        function shareResearch() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Breaking the Silence: June 2025 Bangladesh Sexual Violence Report',
+                    text: 'A data-driven investigation revealing patterns of sexual violence in Bangladesh.',
+                    url: window.location.href
+                });
+            } else {
+                alert('Share functionality would be implemented here');
+            }
+        }
+    </script>
+</body>
+</html>
